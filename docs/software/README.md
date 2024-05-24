@@ -1,7 +1,7 @@
 # Реалізація інформаційного та програмного забезпечення
 
 В рамках проекту розробляється:
-- SQL-скрипт для створення на початкового наповнення бази даних
+## SQL-скрипт для створення на початкового наповнення бази даних
 
 ```sql
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
@@ -227,6 +227,307 @@ INSERT INTO `db-theme-3`.`SupportRequest` (`SupportRequest.id`, `SupportRequest.
 COMMIT;
 ```
 
-- RESTfull сервіс для управління даними
+## RESTfull сервіс для управління даними
 
+RESTfull API для управління даними таблиці userMessage створеної в MySQL 
+було створено за допомогою фреймворку Spring Boot на мові Java. 
+RESTfull API представляє собою CRUD застосунок. 
+- Файл pom.xml зі встановленими залежностями
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.3.0</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>db</groupId>
+	<artifactId>lab6</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>lab6</name>
+	<description>Db lab6</description>
+	<properties>
+		<java.version>17</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+```
+- Підключення бази даних
+```
+spring.application.name=lab6
+spring.datasource.url=jdbc:mysql://localhost:3306/db-theme-3
+spring.datasource.username=user
+spring.datasource.password=12345678
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+```
+- Основний клас для запуску API
+```
+package db.lab6;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class Lab6Application {
+
+	public static void main(String[] args) {
+		SpringApplication.run(Lab6Application.class, args);
+	}
+}
+```
+- Клас сутності для взаємодії з БД
+```
+package db.lab6.entity;
+
+import jakarta.persistence.*;
+
+import java.util.Date;
+
+@Entity
+@Table(name = "usermessage")
+public class UserMessage {
+    @Id
+    @Column(name = "userMessage.id")
+    private int id;
+
+    @Column(name = "userMessage.text")
+    private String text;
+
+    @Column(name = "userMessage.time")
+    private Date time;
+
+    @Column(name = "SupportRequest_SupportRequest.id")
+    private int supportRequestId;
+
+    public UserMessage() {
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public Date getTime() {
+        return time;
+    }
+
+    public void setTime(Date time) {
+        this.time = time;
+    }
+
+    public int getSupportRequestId() {
+        return supportRequestId;
+    }
+
+    public void setSupportRequestId(int supportRequestId) {
+        this.supportRequestId = supportRequestId;
+    }
+}
+```
+- Контролер для роботи з опитуваннями
+```
+package db.lab6.rest;
+
+import db.lab6.entity.UserMessage;
+import db.lab6.service.UserMessageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/db-theme-3")
+public class UserMessageRestController {
+    private UserMessageService userMessageService;
+
+    @Autowired
+    public UserMessageRestController(UserMessageService userMessageService) {
+        this.userMessageService = userMessageService;
+    }
+
+    @GetMapping("/userMessages")
+    public List<UserMessage> findAll() {
+        return userMessageService.findAll();
+    }
+
+    @GetMapping("/userMessages/{userMessageId}")
+    public UserMessage getUserMessage(@PathVariable int userMessageId) {
+        UserMessage userMessage = userMessageService.findById(userMessageId);
+
+        if (userMessage == null) {
+            throw new RuntimeException("UserMessage id not found - " + userMessageId);
+        }
+
+        return userMessage;
+    }
+
+    @PostMapping("/userMessages")
+    public UserMessage addUserMessage(@RequestBody UserMessage userMessage) {
+        UserMessage dbUserMessage = userMessageService.save(userMessage);
+
+        return dbUserMessage;
+    }
+
+    @PutMapping("/userMessages")
+    public UserMessage updateUserMessage(@RequestBody UserMessage userMessage) {
+        UserMessage dbUserMessage = userMessageService.save(userMessage);
+
+        return dbUserMessage;
+    }
+
+    @DeleteMapping("/userMessages/{userMessageId}")
+    public String deleteEmployee(@PathVariable int userMessageId) {
+        UserMessage tmpUserMessage = userMessageService.findById(userMessageId);
+
+        if (tmpUserMessage == null) {
+            throw new RuntimeException("tmpUserMessage id not found - " + userMessageId);
+        }
+        userMessageService.deleteById(userMessageId);
+
+        return "Deleted userMessage id - " + userMessageId;
+    }
+}
+```
+- Сервіс для роботи з опитуваннями
+```
+package db.lab6.service;
+
+import db.lab6.dao.UserMessageDAO;
+import db.lab6.entity.UserMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+public class UserMessageService {
+    private UserMessageDAO userMessageDAO;
+
+    @Autowired
+    public UserMessageService(UserMessageDAO userMessageDAO) {
+        this.userMessageDAO = userMessageDAO;
+    }
+
+    public List<UserMessage> findAll() {
+        return userMessageDAO.findAll();
+    }
+
+    public UserMessage findById(int id) {
+        return userMessageDAO.findById(id);
+    }
+
+    @Transactional
+    public UserMessage save(UserMessage userMessage) {
+        return userMessageDAO.save(userMessage);
+    }
+
+    @Transactional
+    public void deleteById(int id) {
+        userMessageDAO.deleteById(id);
+    }
+}
+```
+- Об'єкт що надає абстрактний інтерфейс до бази даних
+```
+package db.lab6.dao;
+
+import db.lab6.entity.UserMessage;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public class UserMessageDAO {
+    private EntityManager entityManager;
+
+    @Autowired
+
+    public UserMessageDAO(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
+    public List<UserMessage> findAll() {
+        TypedQuery<UserMessage> theQuery = entityManager.createQuery("from UserMessage", UserMessage.class);
+        List<UserMessage> userMessages = theQuery.getResultList();
+        return userMessages;
+    }
+
+    public UserMessage findById(int id) {
+        UserMessage userMessage = entityManager.find(UserMessage.class, id);
+        return userMessage;
+    }
+
+    public UserMessage save(UserMessage userMessage) {
+        UserMessage dbUserMessage = entityManager.merge(userMessage);
+        return dbUserMessage;
+    }
+
+    public void deleteById(int id) {
+        UserMessage userMessage = entityManager.find(UserMessage.class, id);
+        entityManager.remove(userMessage);
+    }
+}
+```
