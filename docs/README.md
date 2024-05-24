@@ -3,27 +3,15 @@ home: true
 actionText: Розпочати →
 actionLink: /intro/
 
-footer: "ECL 2.0 Licensed | Copyright © 2024 Полуянов Владислав"
+footer: "ECL 2.0 Licensed | Copyright © 2024 Андрій Фурсенко"
 ---
 
 
-**Виконали:** 
+**Виконав:** 
 
-*студенти 2-го курсу, групи ІО-21* 
-
-**Владислав Полуянов [vladpoluianov@gmail.com, @PoluianovV]**
-
-**Валерія Гриценко [krisdimond@gmail.com, @Your_Konserva]**
-
-**Микола Смаляний [kolyansmalian@gmail.com, @headmaxer]**
+*студент 2-го курсу, групи ІО-21* 
 
 **Андрій Фурсенко [andrfurs334@gmail.com, @andryhhaaa]**
-
-**Варя РЯбоконь [vararabokon673@gmail.com, @Varuhadvawuha]**
-
-**Тарас Плиска [p1yska.taras@gmail.com, @plyska322]**
-
-**Тарас Усатий [tarasusaty@gmail.com, @GuCaKa]**
 
 **Керівник**
 
