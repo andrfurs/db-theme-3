@@ -11,7 +11,7 @@ footer: "ECL 2.0 Licensed | Copyright © 2024 Андрій Фурсенко"
 
 *студент 2-го курсу, групи ІО-21* 
 
-**Андрій Фурсенко [andrfurs334@gmail.com, @andryhhaaa]**
+Андрій Фурсенко <a href="https://t.me/@andryhhaaa" target="_blank"> Telegram </a>
 
 **Керівник**
 
